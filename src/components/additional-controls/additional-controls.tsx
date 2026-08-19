@@ -2,6 +2,7 @@
 
 import { translations } from "@/assets/static-data/translations";
 import { MuseumObjectContext } from "@/context/museum-object-context";
+import { useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import ExitFullscreenIcon from "../icons/exit-fullscreen";
 import FullscreenIcon from "../icons/fullscreen";
@@ -15,6 +16,8 @@ import MetadataModal from "../metadata-modal/metadata-modal";
 export default function AdditionalControls() {
   const { museumObjectState, setMuseumObjectState } =
     useContext(MuseumObjectContext);
+  const searchParams = useSearchParams();
+  const spanish = searchParams.get("spanish");
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMetadataModalOpen, setIsMetadataModalOpen] = useState(false);
@@ -74,7 +77,7 @@ export default function AdditionalControls() {
         </div>
       )}
 
-      <LanguageButton />
+      {spanish !== "false" && <LanguageButton />}
 
       {/* Learn More */}
       <button
