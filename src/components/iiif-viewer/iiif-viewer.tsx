@@ -74,6 +74,42 @@ export default function IIIFViewer({ annotatedImageId }: IIIFViewerProps) {
     }
   }, [museumObjectState.attractModeActive]);
 
+  useEffect(() => {
+    if (!openSeadragonViewer) return;
+
+    const root = openSeadragonViewer.element ?? document.body;
+
+    const reportAnnotationEngagement = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      const button = target?.closest("button[type='button']");
+
+      if (!button) return;
+
+      const annotation_title = button.ariaLabel; // aria-label is set to the annotation title in the OSDViewer component
+      if (!annotation_title) return;
+
+      // Report to GA4 here
+      console.log({
+        event: "annotation_click",
+        annotation_title: annotation_title,
+        kiosk_title: `Annotated Image - ${museumObjectState?.manifestData?.label["en"]}`,
+      });
+      // sendGTMEvent({
+      //   event: "annotation_click",
+      //   annotation_title: annotation_title,
+      //   kiosk_title: `Annotated Image - ${museumObjectState?.manifestData?.label["en"]}`,
+      // });
+    };
+
+    root.addEventListener("click", reportAnnotationEngagement, true);
+    root.addEventListener("touchstart", reportAnnotationEngagement, true);
+
+    return () => {
+      root.removeEventListener("click", reportAnnotationEngagement, true);
+      root.removeEventListener("touchstart", reportAnnotationEngagement, true);
+    };
+  }, [openSeadragonViewer]);
+
   return (
     <div
       ref={viewerRef}
