@@ -1,6 +1,7 @@
 "use client";
 
 import { MuseumObjectContext } from "@/context/museum-object-context";
+import { sendGTMEvent } from "@next/third-parties/google";
 import dynamic from "next/dynamic";
 import { Viewer as OSDViewer } from "openseadragon";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -23,6 +24,7 @@ interface IIIFViewerProps {
 
 export default function IIIFViewer({ annotatedImageId }: IIIFViewerProps) {
   const { museumObjectState } = useContext(MuseumObjectContext);
+  const { kioskMode } = museumObjectState;
 
   const [openSeadragonViewer, setOpenSeadragonViewer] = useState<OSDViewer>();
 
@@ -88,17 +90,17 @@ export default function IIIFViewer({ annotatedImageId }: IIIFViewerProps) {
       const annotation_title = button.ariaLabel; // aria-label is set to the annotation title in the OSDViewer component
       if (!annotation_title) return;
 
-      // Report to GA4 here
-      console.log({
-        event: "annotation_click",
-        annotation_title: annotation_title,
-        kiosk_title: `Annotated Image - ${museumObjectState?.manifestData?.label["en"]}`,
-      });
-      // sendGTMEvent({
-      //   event: "annotation_click",
-      //   annotation_title: annotation_title,
-      //   kiosk_title: `Annotated Image - ${museumObjectState?.manifestData?.label["en"]}`,
-      // });
+      // Report to GA4
+      if (
+        museumObjectState?.kioskMode &&
+        process.env.NODE_ENV === "production"
+      ) {
+        sendGTMEvent({
+          event: "annotation_click",
+          annotation_title: annotation_title,
+          kiosk_title: `Annotated Image - ${museumObjectState?.manifestData?.label["en"]}`,
+        });
+      }
     };
 
     root.addEventListener("click", reportAnnotationEngagement, true);
