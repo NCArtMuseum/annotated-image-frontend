@@ -5,6 +5,7 @@ import { MuseumObjectContext } from "@/context/museum-object-context";
 import { useFocusTrap } from "@/utils/useFocusTrap";
 import { sendGTMEvent } from "@next/third-parties/google";
 import clsx from "clsx";
+import { useSearchParams } from "next/navigation";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import HandTouchIcon from "../icons/hand-touch";
 import LanguageButton from "../language-button/language-button";
@@ -34,6 +35,9 @@ export default function AttractModeContent() {
     attractModeActive,
     objectMetadata,
   } = museumObjectState;
+
+  const searchParams = useSearchParams();
+  const spanish = searchParams.get("spanish");
 
   // Focus trap for accessibility - delay focus until animation completes
   const [shouldEnableFocusTrap, setShouldEnableFocusTrap] = useState(false);
@@ -269,7 +273,7 @@ export default function AttractModeContent() {
         aria-label={attractModeActive ? "Welcome screen" : undefined}
       >
         {/* Language Button */}
-        {attractModeActive && (
+        {attractModeActive && spanish !== "false" && (
           <div className="absolute bottom-4 right-4 z-[11]">
             <LanguageButton />
           </div>
